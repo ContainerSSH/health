@@ -45,6 +45,7 @@ func TestOk(t *testing.T) {
 
 	response := ""
 
+	srv.ChangeStatus(true)
 	status, err := client.Get("", &response)
 
 	if err != nil {
@@ -56,6 +57,21 @@ func TestOk(t *testing.T) {
 	}
 
 	if response != "ok" {
+		t.Fatalf("Unexpected response: %s", response)
+	}
+
+	srv.ChangeStatus(false)
+	status, err = client.Get("", &response)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if status != 503 {
+		t.Fatalf("Unexpected status code: %d", status)
+	}
+
+	if response != "not ok" {
 		t.Fatalf("Unexpected response: %s", response)
 	}
 }

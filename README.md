@@ -22,3 +22,9 @@ if err != nil {
 	t.Fatal(err)
 }
 ```
+
+You can change the `ok`/`not ok` status by calling `srv.ChangeStatus(bool)`, like so:
+
+```go
+srv.ChangeStatus(true)
+```
