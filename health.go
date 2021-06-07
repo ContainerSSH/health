@@ -8,7 +8,7 @@ import (
 
 // Config is the configuration for the HealthCheckService.
 type Config struct {
-	http.ServerConfiguration
+	http.ServerConfiguration `json:",inline" yaml:",inline" default:"{\"listen\":\"0.0.0.0:23074\"}"`
 }
 
 // New creates a new HTTP health service on port 23074
