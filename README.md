@@ -16,10 +16,16 @@ This library uses ContainerSSH' own [HTTP](https://github.com/containerssh/http)
 You can instantiate this service as described in the [service library](https://github.com/containerssh/service) as follows:
 
 ```go
-srv, err := health.New(logger)
+svc, err := health.New(
+    health.Config{
+        ServerConfiguration: http.ServerConfiguration{
+            Listen: "0.0.0.0:23074",
+        },
+    },
+    logger)
 
 if err != nil {
-	t.Fatal(err)
+    // ...
 }
 ```
 

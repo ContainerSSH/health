@@ -11,7 +11,13 @@ import (
 
 func TestOk(t *testing.T) {
 	logger := log.NewTestLogger(t)
-	srv, err := health.New(logger)
+	srv, err := health.New(
+		health.Config{
+			ServerConfiguration: http.ServerConfiguration{
+				Listen: "127.0.0.1:23074",
+			},
+		},
+		logger)
 
 	if err != nil {
 		t.Fatal(err)
@@ -32,7 +38,7 @@ func TestOk(t *testing.T) {
 	<-running
 
 	client, err := http.NewClient(http.ClientConfiguration{
-		URL:            "http://localhost:23074",
+		URL:            "http://127.0.0.1:23074",
 		AllowRedirects: false,
 		Timeout:        5 * time.Second,
 	},

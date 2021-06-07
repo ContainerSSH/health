@@ -6,15 +6,20 @@ import (
 	"github.com/containerssh/service"
 )
 
+// Config is the configuration for the HealthCheckService.
+type Config struct {
+	http.ServerConfiguration
+}
+
 // New creates a new HTTP health service on port 23074
-func New(logger log.Logger) (HealthCheckService, error) {
+func New(config Config, logger log.Logger) (HealthCheckService, error) {
 
 	rh := &requestHandler{}
 
 	handler := http.NewServerHandler(rh, logger)
 	svc, err := http.NewServer(
 		"health",
-		http.ServerConfiguration{Listen: "127.0.0.1:23074"},
+		config.ServerConfiguration,
 		handler,
 		logger,
 		func(url string) {},
@@ -30,6 +35,7 @@ func New(logger log.Logger) (HealthCheckService, error) {
 	}, nil
 }
 
+// HealthCheckService is an HTTP service that lets you change the status via ChangeStatus().
 type HealthCheckService interface {
 	service.Service
 	ChangeStatus(ok bool)
