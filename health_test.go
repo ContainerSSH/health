@@ -30,13 +30,13 @@ func TestOk(t *testing.T) {
 	}()
 
 	<-running
-	
+
 	client, err := http.NewClient(http.ClientConfiguration{
-		URL:             "http://localhost:23074",
-		AllowRedirects:  false,
-		Timeout:         5*time.Second,
+		URL:            "http://localhost:23074",
+		AllowRedirects: false,
+		Timeout:        5 * time.Second,
 	},
-	logger,
+		logger,
 	)
 
 	if err != nil {

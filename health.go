@@ -6,6 +6,7 @@ import (
 	"github.com/containerssh/service"
 )
 
+// New creates a new HTTP health service on port 23074
 func New(logger log.Logger) (service.Service, error) {
 
 	handler := http.NewServerHandler(&requestHandler{}, logger)
@@ -14,11 +15,11 @@ func New(logger log.Logger) (service.Service, error) {
 		http.ServerConfiguration{Listen: "127.0.0.1:23074"},
 		handler,
 		logger,
-		func(url string){},
-		)
+		func(url string) {},
+	)
 }
 
-type requestHandler struct{
+type requestHandler struct {
 	ok bool
 }
 
