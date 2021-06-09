@@ -18,6 +18,7 @@ You can instantiate this service as described in the [service library](https://g
 ```go
 svc, err := health.New(
     health.Config{
+        Enable: true
         ServerConfiguration: http.ServerConfiguration{
             Listen: "0.0.0.0:23074",
         },
@@ -33,4 +34,25 @@ You can change the `ok`/`not ok` status by calling `srv.ChangeStatus(bool)`, lik
 
 ```go
 srv.ChangeStatus(true)
+```
+
+## Health check client
+
+This library also provides a built-in client for running health checks. This can be used as follows:
+
+```go
+client, err := health.NewClient(
+    health.Config{
+        Enable: true
+        Client: http.ClientConfiguration{
+            URL: "http://0.0.0.0:23074",
+        },
+    },
+    logger)
+)
+if client.Run() {
+    // Success
+} else {
+    // Failed
+}
 ```

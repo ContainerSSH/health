@@ -11,14 +11,19 @@ import (
 
 func TestOk(t *testing.T) {
 	logger := log.NewTestLogger(t)
-	srv, err := health.New(
-		health.Config{
-			ServerConfiguration: http.ServerConfiguration{
-				Listen: "127.0.0.1:23074",
-			},
+	config := health.Config{
+		Enable: true,
+		ServerConfiguration: http.ServerConfiguration{
+			Listen: "127.0.0.1:23074",
 		},
-		logger)
+		Client: http.ClientConfiguration{
+			URL:            "http://127.0.0.1:23074",
+			AllowRedirects: false,
+			Timeout:        5 * time.Second,
+		},
+	}
 
+	srv, err := health.New(config, logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,7 +31,6 @@ func TestOk(t *testing.T) {
 	l := service.NewLifecycle(srv)
 
 	running := make(chan struct{})
-
 	l.OnRunning(func(s service.Service, l service.Lifecycle) {
 		running <- struct{}{}
 	})
@@ -37,39 +41,22 @@ func TestOk(t *testing.T) {
 
 	<-running
 
-	client, err := http.NewClient(http.ClientConfiguration{
-		URL:            "http://127.0.0.1:23074",
-		AllowRedirects: false,
-		Timeout:        5 * time.Second,
-	},
-		logger,
-	)
-
+	client, err := health.NewClient(config, logger)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	if client.Run() {
+		t.Fatal("Health check did not fail, even though status is false.")
 	}
 
 	srv.ChangeStatus(true)
-	checkStatusResponse(t, client, 200, "ok")
+	if !client.Run() {
+		t.Fatal("Health check failed, even though status is true.")
+	}
 
 	srv.ChangeStatus(false)
-
-	checkStatusResponse(t, client, 503, "not ok")
-}
-
-func checkStatusResponse(t *testing.T, client http.Client, expectedStatusCode int, expectedResponse string) {
-	response := ""
-	status, err := client.Get("", &response)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if status != expectedStatusCode {
-		t.Fatalf("Unexpected status code: %d", status)
-	}
-
-	if response != expectedResponse {
-		t.Fatalf("Unexpected response: %s", response)
+	if client.Run() {
+		t.Fatal("Health check did not fail, even though status is false.")
 	}
 }
